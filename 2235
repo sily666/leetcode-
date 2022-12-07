@@ -1,0 +1,110 @@
+
+//https://swexpertacademy.samsung.com/common/swea/solvingPractice/problemDetail.do?contestProbId=AYHRfCK6jv3HBFYO&solveclubId=&solveclubPassword=&attendYn=
+
+#include<iostream>
+#include<string>
+#include<map>
+#include<set>
+#include<vector>
+using namespace std;
+#define MAX 100000
+
+struct passenger {
+	int point; //乘客点数
+	int carNum;//乘客所在车厢
+}pg[MAX];
+
+struct cmp {
+	bool operator()(int a, int b) const {
+		return pg[a].point > pg[b].point || (pg[a].point == pg[b].point && a < b);
+	}
+};
+
+set<int, cmp> car[10]; //car表示整个列车；car[0]表示第一节车厢；cmp用于对每节车厢内部进行排序，对排序方式进行重构；
+
+map<int, vector<int>> jobMap; //表示工种对应乘客的映射；jobMap[0]表示工种为0的所有乘客；
+
+int n, m, j;
+
+//N:总乘客数；M:一节车厢的乘客数；J:job的种类数；mPoint[]:每个乘客的点数；mJobID[]：每个乘客的job种类；
+void init(int N, int M, int J, int mPoint[], int mJobID[]) {
+	n = N;
+	m = M;
+	j = J;
+	jobMap.clear();
+	for (int i = 0; i < n / m; i++) {
+		car[i].clear();
+	}
+	for (int i = 0; i < n; i++) {
+		pg[i].point = mPoint[i];
+		pg[i].carNum = i / m; //初始化乘客信息
+		car[i / m].insert(i); //将乘客ID放入对应车厢
+		jobMap[mJobID[i]].push_back(i); //将乘客ID放入对应job种类
+	}
+}
+
+void destroy() {
+
+}
+
+//将ID为mID的乘客的点数 增加mPoint；返回改乘客更新后的点数
+int update(int mID, int mPoint) {
+	car[pg[mID].carNum].erase(mID); //删除该乘客在对应车厢中的ID
+	pg[mID].point += mPoint; //更新乘客点数
+	car[pg[mID].carNum].insert(mID);
+	return pg[mID].point;
+}
+
+//将所有工种为mJobID的乘客 点数增加mPoint；返回所有更改信息的乘客的点数和
+int updateByJob(int mJobID, int mPoint) {
+	int sum = 0;
+	for (int a : jobMap[mJobID]) { //遍历jobMap[mJobID]，更新所有乘客信息
+		sum += update(a, mPoint);
+	}
+	return sum;
+}
+
+//交换车厢中的乘客；将car[0]中排序最后的mNum个乘客与car[1]中排序最前的mNum个乘客交换车厢...以此类推直到倒数第二节车厢与最后一节车厢交换乘客；
+//返回所有交换车厢的乘客的点数和
+int move(int mNum) {
+	vector<int> tmp[11]; //记录每个车厢需要交换的乘客
+	int sum = 0; 
+	for (int i = 1; i < n / m; i++) { //遍历车厢
+		for (int j = 0; j < mNum; j++) { //遍历需要交换的人数
+			auto c1 = car[i].begin(); //记录后一节车厢最开始的乘客
+			auto c2 = --car[i - 1].end(); //记录前一节车厢最后的乘客;必须要--，因为end()返回的是最后一个元素的后一个位置的地址（所有容器都是如此）
+			//auto c2 = car[i - 1].rbegin(); //rbegin返回逆序第一个元素
+			tmp[i].push_back(*c2); //交换乘客，记录在相应的tmp车厢中
+			tmp[i - 1].push_back(*c1);
+
+			car[i].erase(c1);  //删除要交换的乘客
+			car[i - 1].erase(c2);
+		}
+	}
+	
+	for (int i = 0; i < n / m; i++) {
+		for (auto a : tmp[i]) {
+			car[i].insert(a); //将tmp车厢中对应的乘客添加到car车厢中
+			pg[a].carNum = i; //更新乘客车厢信息
+			sum += pg[a].point; //累计点数
+		}
+	}
+	return sum;
+}
+
+int main() {
+    int point[] = { 8, 19, 18, 9, 18, 19, 2, 1, 4, 1, 16, 18, 2, 7, 0, 6, 9, 2, 11, 18, 1 };
+    int job[] = { 2, 0, 2, 1, 0, 2, 0, 1, 2, 2, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0 };
+    init(21, 7, 3, point, job);
+
+    int a = move(2);
+	int b = move(2);
+	int c = move(2);
+	int d = update(2, 796);
+	int e = updateByJob(0, -686);
+    cout << a << endl;
+	cout << b << endl;
+	cout << c << endl;
+	cout << d << endl;
+	cout << e << endl;
+}
