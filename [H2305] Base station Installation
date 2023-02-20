@@ -85,4 +85,72 @@ Parameters
 Returns
 
   Return the maximum distance between the most adjacent base stations.
+  
+  
+  ```cpp
+  #include <map>
+#include <unordered_map>
+using namespace std;
+
+const int N = 3e4;
+
+int n;
+int v[N];
+
+map<int, int> g;
+unordered_map<int, int> f;
+
+void insert(int x, int y) {
+    f[x] = y;
+    g[y] = x;
+}
+
+void init(int k, int x[], int y[]) {
+    g.clear();
+    f.clear();
+    for (int i = 0; i < k; i++) insert(x[i], y[i]);
+}
+
+int add(int x, int y) {
+    if (f.count(x)) {
+        auto it = g.find(f[x]);
+        if (it != g.end() && it->second == x) g.erase(f[x]);
+    }
+    insert(x, y);
+    return g.size();
+}
+
+int remove(int mStart, int mEnd) {
+    auto l = g.lower_bound(mStart);
+    auto r = g.upper_bound(mEnd);
+    g.erase(l, r);
+    return g.size();
+}
+
+bool ok(int d, int m) {
+    int x = 0;
+    m--;
+    while (m) {
+        x = lower_bound(v + x, v + n, v[x] + d) - v;
+        if (x == n) break;
+        m--;
+    }
+    return !m;
+}
+
+int install(int m) {
+    int l, r, k, x;
+
+    n = 0;
+    for (auto e : g) v[n++] = e.first;
+
+    l = 1, r = v[n - 1] - v[0] + 1;
+    while (l < r) {
+        k = (l + r) >> 1;
+        if (ok(k, m)) x = k, l = k + 1;
+        else r = k;
+    }
+    return x;
+}
  
+```
