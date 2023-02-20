@@ -1,0 +1,88 @@
+
+void init(int N, int mId[], int mLocation[])
+ 
+
+This function is called in the beginning of each test case.
+
+N building IDs and the location of buildings are given.
+
+There are no cases where the buildings are of the same ID and of the same location.
+
+ 
+
+Parameters
+
+  N: The number of buildings ( 2 ≤ N ≤ 100 )
+
+ 
+
+  When it comes to all ‘i’s following the condition of (0 ≤ i ＜ N):
+
+  mId[i]: The ID of Building i ( 1 ≤ mId[i] ≤ 1,000,000,000 )
+
+  mLocation[i]: The location of Building i ( 1 ≤ mLocation[i] ≤ 1,000,000,000 )
+ 
+
+int add(int mId, int mLocation)
+ 
+
+This function adds a building whose ID is mId and location is mLocation.
+
+If the ID already exists, this function does not add the building but changes its location.
+
+There are no cases where mLocation is given the same as the location value of a different building.
+
+ 
+
+Parameters
+
+  mId: The Building ID ( 1 ≤ mId ≤ 1,000,000,000 )
+
+  mLocation: The location of building ( 1 ≤ mLocation ≤ 1,000,000,000 )
+
+ 
+
+Returns
+
+  After adding a building or changing the location, return the total number of buildings.
+ 
+
+int remove(int mStart, int mEnd)
+ 
+
+This function removes all buildings whose locations are in the range from mStart to mEnd.
+
+ 
+
+Parameters
+
+  mStart: The starting point of the range to be removed ( 1 ≤ mStart ≤ 1,000,000,000 )
+
+  mEnd: The end point of the range to be removed ( mStart ≤ mEnd ≤ 1,000,000,000 )
+
+ 
+
+Returns
+
+  After the removal, return the total number of buildings left.
+ 
+
+int install(int M)
+ 
+
+When installing all M base stations making the distance between the most adjacent base stations the longest among the buildings left, this function returns the distance between the most adjacent base stations.
+
+There are no cases where the value of M is given larger than the number of buildings.
+
+ 
+
+Parameters
+
+  M: The number of base stations ( 2 ≤ M ≤ 2,000 )
+
+ 
+
+Returns
+
+  Return the maximum distance between the most adjacent base stations.
+ 
