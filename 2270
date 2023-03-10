@@ -1,0 +1,95 @@
+const int D = 100;
+const int N = 230005;
+const int MAX = 0x7f7f7f7f;
+const int MIN = 0xffffffff;
+
+int n;
+int a[N], r[N], f[N]; //f标志位，记录有没有数据； 
+int high[N / D], low[N / D], size[N / D];
+
+int max(int a, int b) { return a > b ? a : b; }
+int min(int a, int b) { return a < b ? a : b; }
+
+void add(int v) {
+    int x = n++;
+    int k = x / D;
+
+    a[x] = v, f[x] = 1, r[x] = x + 1;
+
+    if (x % D == 0) size[k] = 1, high[k] = v, low[k] = v;
+    else size[k]++, high[k] = max(high[k], v), low[k] = min(low[k], v);
+}
+
+void update(int k) {
+    high[k] = MIN;
+    low[k] = MAX;
+    if (!size[k]) return;
+
+    for (int i = k * D; i < (k + 1) * D && i < n; i++) {
+        if (!f[i]) continue;
+        high[k] = max(high[k], a[i]);
+        low[k] = min(low[k], a[i]);
+    }
+}
+
+int index(int n) {
+    int k = 0; //n表示下标，记录n属于哪一段
+    while (n > size[k]) n -= size[k++];
+
+    int x = k * D;
+    while (n) n -= f[x++];
+    return x - 1; //返回n真正的下标
+}
+
+void init(int m, int v[]) {
+    n = 0;
+    for (int i = 0; i < m; i++) add(v[i]);
+}
+
+void add(int m, int v[]) {
+    for (int i = 0; i < m; i++) add(v[i]);
+}
+
+void erase(int s, int e) {
+    int x, p, d;
+
+    d = e - s + 1; //删除范围
+    if (s > 1) p = index(s - 1), x = r[p];
+    else p = -1, x = index(s);
+
+    s = x;
+    while (d) {
+        d--;
+        f[x] = 0;
+        size[x / D]--;
+        e = x;
+        x = r[x];
+    }
+
+    if (p != -1) r[p] = x;
+    for (int k = s / D; k <= e / D; k++) update(k);
+}
+
+int find(int d) {
+    int k = (n - 1) / D;
+    int u = MAX, w = MIN;
+
+    while (d > size[k]) {
+        u = min(u, low[k]);
+        w = max(w, high[k]);
+        d -= size[k];
+        k--;
+    }
+
+    int x = min((k + 1) * D, n) - 1;
+
+    while (d) {
+        if (f[x]) {
+            u = min(u, a[x]);
+            w = max(w, a[x]);
+        }
+        d -= f[x];
+        x--;
+    }
+    return w - u;
+}
